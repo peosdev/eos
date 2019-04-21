@@ -169,24 +169,14 @@ echo "${COLOR_CYAN}=============================================================
 echo "======================= ${COLOR_WHITE}Starting EOSIO Dependency Install${COLOR_CYAN} ===========================${COLOR_NC}"
 execute cd $SRC_LOCATION
 . $FILE # Execute OS specific build file
+execute cd $REPO_ROOT
 echo ""
 echo "${COLOR_CYAN}========================================================================"
 echo "======================= ${COLOR_WHITE}Starting EOSIO Build${COLOR_CYAN} ===========================${COLOR_NC}"
 execute mkdir -p $BUILD_DIR
 execute cd $BUILD_DIR
-execute bash -c "$CMAKE -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
-   -DCMAKE_CXX_COMPILER=${CXX_COMPILER} \
-   -DCMAKE_C_COMPILER=${C_COMPILER} \
-   -DCORE_SYMBOL_NAME=${CORE_SYMBOL_NAME} \
-   -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR} \
-   -DBUILD_MONGO_DB_PLUGIN=true \
-   -DENABLE_COVERAGE_TESTING=${ENABLE_COVERAGE_TESTING} \
-   -DBUILD_DOXYGEN=${DOXYGEN} \
-   -DCMAKE_PREFIX_PATH=${EOSIO_HOME} \
-   -DCMAKE_INSTALL_PREFIX=${OPT_LOCATION}/eosio \
-   ${LOCAL_CMAKE_FLAGS} \
-   ${REPO_ROOT}"
-execute make -j"${JOBS}"
+execute eval $CMAKE -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${C_COMPILER} -DCORE_SYMBOL_NAME=${CORE_SYMBOL_NAME} -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR} -DBUILD_MONGO_DB_PLUGIN=true -DENABLE_COVERAGE_TESTING=${ENABLE_COVERAGE_TESTING} -DBUILD_DOXYGEN=${DOXYGEN} -DCMAKE_PREFIX_PATH=${EOSIO_HOME} -DCMAKE_INSTALL_PREFIX=${EOSIO_HOME} ${LOCAL_CMAKE_FLAGS} ${REPO_ROOT}
+execute make -j$JOBS
 execute cd $REPO_ROOT 1>/dev/null
 
 TIME_END=$(( $(date -u +%s) - $TIME_BEGIN ))
