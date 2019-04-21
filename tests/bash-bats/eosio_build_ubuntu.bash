@@ -39,7 +39,6 @@ TEST_LABEL="[eosio_build_ubuntu]"
 
 @test "${TEST_LABEL} > Testing Executions" {
     run bash -c "printf \"y\n%.0s\" {1..100} | ./$SCRIPT_LOCATION"
-    debug
     [[ ! -z $(echo "${output}" | grep "Starting EOSIO Dependency Install") ]] || exit
     [[ ! -z $(echo "${output}" | grep "Executing: /usr/bin/apt-get update") ]] || exit
     [[ ! -z $(echo "${output}" | grep "apt.*found!") ]] || exit
