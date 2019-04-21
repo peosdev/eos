@@ -154,7 +154,7 @@ fi
 if [ "$ARCH" == "Darwin" ]; then
    # opt/gettext: cleos requires Intl, which requires gettext; it's keg only though and we don't want to force linking: https://github.com/EOSIO/eos/issues/2240#issuecomment-396309884
    # EOSIO_HOME/lib/cmake: mongo_db_plugin.cpp:25:10: fatal error: 'bsoncxx/builder/basic/kvp.hpp' file not found
-   LOCAL_CMAKE_FLAGS="-DCMAKE_PREFIX_PATH=/usr/local/opt/gettext;$EOSIO_HOME/lib/cmake ${LOCAL_CMAKE_FLAGS}" 
+   LOCAL_CMAKE_FLAGS="-DCMAKE_PREFIX_PATH='/usr/local/opt/gettext;$EOSIO_HOME/lib/cmake' ${LOCAL_CMAKE_FLAGS}" 
    FILE="${SCRIPT_DIR}/eosio_build_darwin.bash"
    CXX_COMPILER=clang++
    C_COMPILER=clang
@@ -175,7 +175,10 @@ echo "${COLOR_CYAN}=============================================================
 echo "======================= ${COLOR_WHITE}Starting EOSIO Build${COLOR_CYAN} ===========================${COLOR_NC}"
 execute mkdir -p $BUILD_DIR
 execute cd $BUILD_DIR
-execute eval $CMAKE -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${C_COMPILER} -DCORE_SYMBOL_NAME=${CORE_SYMBOL_NAME} -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR} -DBUILD_MONGO_DB_PLUGIN=true -DENABLE_COVERAGE_TESTING=${ENABLE_COVERAGE_TESTING} -DBUILD_DOXYGEN=${DOXYGEN} -DCMAKE_PREFIX_PATH=${EOSIO_HOME} -DCMAKE_INSTALL_PREFIX=${EOSIO_HOME} ${LOCAL_CMAKE_FLAGS} ${REPO_ROOT}
+execute bash -c "$CMAKE -DCMAKE_BUILD_TYPE='${CMAKE_BUILD_TYPE}' -DCMAKE_CXX_COMPILER='${CXX_COMPILER}' \
+-DCMAKE_C_COMPILER='${C_COMPILER}' -DCORE_SYMBOL_NAME='${CORE_SYMBOL_NAME}' -DOPENSSL_ROOT_DIR='${OPENSSL_ROOT_DIR}' \
+-DBUILD_MONGO_DB_PLUGIN=true -DENABLE_COVERAGE_TESTING='${ENABLE_COVERAGE_TESTING}' -DBUILD_DOXYGEN='${DOXYGEN}' \
+-DCMAKE_PREFIX_PATH='${EOSIO_HOME}' -DCMAKE_INSTALL_PREFIX='${EOSIO_HOME}' ${LOCAL_CMAKE_FLAGS} '${REPO_ROOT}'"
 execute make -j$JOBS
 execute cd $REPO_ROOT 1>/dev/null
 
