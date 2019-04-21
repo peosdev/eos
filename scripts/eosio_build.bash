@@ -167,14 +167,13 @@ fi
 
 echo "${COLOR_CYAN}====================================================================================="
 echo "======================= ${COLOR_WHITE}Starting EOSIO Dependency Install${COLOR_CYAN} ===========================${COLOR_NC}"
-execute pushd $SRC_LOCATION 1>/dev/null
+execute cd $SRC_LOCATION
 . $FILE # Execute OS specific build file
-execute popd 1>/dev/null
 echo ""
 echo "${COLOR_CYAN}========================================================================"
 echo "======================= ${COLOR_WHITE}Starting EOSIO Build${COLOR_CYAN} ===========================${COLOR_NC}"
 execute mkdir -p $BUILD_DIR
-execute pushd $BUILD_DIR 1>/dev/null
+execute cd $BUILD_DIR
 execute $CMAKE -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
    -DCMAKE_CXX_COMPILER="${CXX_COMPILER}" \
    -DCMAKE_C_COMPILER="${C_COMPILER}" \
@@ -188,7 +187,7 @@ execute $CMAKE -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
    ${LOCAL_CMAKE_FLAGS} \
    "${REPO_ROOT}"
 execute make -j"${JOBS}"
-execute popd $REPO_ROOT 1>/dev/null
+execute cd $REPO_ROOT 1>/dev/null
 
 TIME_END=$(( $(date -u +%s) - $TIME_BEGIN ))
 
