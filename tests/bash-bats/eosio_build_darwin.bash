@@ -26,7 +26,7 @@ TEST_LABEL="[eosio_build_darwin]"
 }
 
 @test "${TEST_LABEL} > Testing Executions" {
-  export CMAKE=/usr/local/bin/cmake # Necessary just in case it's not brew installed
+  export CMAKE=/usr/local/bin/cmake # Testing for if CMAKE already exists
   touch $CMAKE
   run bash -c "printf \"y\n%.0s\" {1..100} | ./$SCRIPT_LOCATION"
   ### Make sure deps are loaded properly
@@ -42,4 +42,8 @@ TEST_LABEL="[eosio_build_darwin]"
   [[ ! -z $(echo "${output}" | grep ${HOME}.*/src/boost) ]] || exit
   [[ ! -z $(echo "${output}" | grep "Starting EOSIO Build") ]] || exit
   [[ ! -z $(echo "${output}" | grep "Executing: /usr/local/bin/cmake") ]] || exit
+  ## Testing for if cmake doesn't exist to be sure it's set properly
+  export CMAKE=
+  run bash -c "printf \"y\n%.0s\" {1..100} | ./$SCRIPT_LOCATION"
+  [[ ! -z $(echo "${output}" | grep "Executing: /usr/local/bin/cmake -DCMAKE_BUILD") ]] || exit
 }
