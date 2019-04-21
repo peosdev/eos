@@ -113,7 +113,7 @@ if [ $COUNT -gt 1 ]; then
 				done
 				execute brew tap eosio/eosio
 				echo "${COLOR_GREEN}[Installing HomeBrew Dependencies]${COLOR_NC}"
-				execute $BREW install $DEPS
+				execute eval $BREW install $DEPS
 				IFS="$OIFS"
 				echo ""
 			break;;
