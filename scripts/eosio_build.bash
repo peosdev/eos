@@ -125,12 +125,10 @@ echo "User: ${CURRENT_USER}"
 echo "Current branch: $( execute git rev-parse --abbrev-ref HEAD 2>/dev/null )"
 
 # Use existing cmake on system (either global or specific to eosio)
-export CMAKE=${CMAKE:-${EOSIO_HOME}/bin/cmake}
-( [[ -z "${CMAKE}" ]] && [[ ! -z $(command -v cmake 2>/dev/null) ]] ) && export CMAKE=$(command -v cmake 2>/dev/null)
-
 # Setup based on architecture
 echo "Architecture: ${ARCH}"
 if [ "$ARCH" == "Linux" ]; then
+   export CMAKE=${CMAKE:-${EOSIO_HOME}/bin/cmake}
    [[ $CURRENT_USER == "root" ]] || ensure-sudo
    OPENSSL_ROOT_DIR=/usr/include/openssl
    case $NAME in
@@ -161,7 +159,11 @@ if [ "$ARCH" == "Darwin" ]; then
    CXX_COMPILER=clang++
    C_COMPILER=clang
    OPENSSL_ROOT_DIR=/usr/local/opt/openssl
+   export CMAKE=${CMAKE}
 fi
+
+( [[ -z "${CMAKE}" ]] && [[ ! -z $(command -v cmake 2>/dev/null) ]] ) && export CMAKE=$(command -v cmake 2>/dev/null)
+
 
 echo "${COLOR_CYAN}====================================================================================="
 echo "======================= ${COLOR_WHITE}Starting EOSIO Dependency Install${COLOR_CYAN} ===========================${COLOR_NC}"
