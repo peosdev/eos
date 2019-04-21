@@ -26,7 +26,7 @@ TEST_LABEL="[eosio_build_darwin]"
 }
 
 @test "${TEST_LABEL} > Testing Executions" {
-  export CMAKE=/usr/local/bin/cmake # Testing for if CMAKE already exists
+  export CMAKE=${EOSIO_HOME}/cmake # Testing for if CMAKE already exists
   touch $CMAKE
   run bash -c "printf \"y\n%.0s\" {1..100} | ./$SCRIPT_LOCATION"
   ### Make sure deps are loaded properly
@@ -41,9 +41,9 @@ TEST_LABEL="[eosio_build_darwin]"
   [[ ! -z $(echo "${output}" | grep "brew install.*llvm@4.*") ]] || exit
   [[ ! -z $(echo "${output}" | grep ${HOME}.*/src/boost) ]] || exit
   [[ ! -z $(echo "${output}" | grep "Starting EOSIO Build") ]] || exit
-  [[ ! -z $(echo "${output}" | grep "Executing: /usr/local/bin/cmake") ]] || exit
+  [[ ! -z $(echo "${output}" | grep "Executing: bash -c ${CMAKE}") ]] || exit
   ## Testing for if cmake doesn't exist to be sure it's set properly
   export CMAKE=
   run bash -c "printf \"y\n%.0s\" {1..100} | ./$SCRIPT_LOCATION"
-  [[ ! -z $(echo "${output}" | grep "Executing: /usr/local/bin/cmake -DCMAKE_BUILD") ]] || exit
+  [[ ! -z $(echo "${output}" | grep "Executing: bash -c /usr/local/bin/cmake -DCMAKE_BUILD") ]] || exit
 }
