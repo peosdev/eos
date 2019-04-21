@@ -101,7 +101,7 @@ while read -r testee tester; do
 		echo " - ${testee} ${COLOR_RED}NOT${COLOR_NC} found."
 		(( COUNT++ ))
 	fi
-done < $DEPS_FILE
+done < "${REPO_ROOT}/scripts/eosio_build_centos7_deps"
 IFS=$OLDIFS
 echo ""
 if [ "${COUNT}" -gt 1 ]; then
