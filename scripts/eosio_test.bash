@@ -38,6 +38,13 @@ VERSION=1.0
 # Load eosio specific helper functions
 . ./scripts/lib/eosio.bash
 
+function usage() {
+   printf "Usage: $0 OPTION...
+  -m          Start MongoDB
+   \\n" "$0" 1>&2
+   exit 1
+}
+
 if [ $# -ne 0 ]; then
    while getopts "m" opt; do
       case "${opt}" in
@@ -72,11 +79,18 @@ txtrst=$(tput sgr0)
 [[ ! -d $BUILD_DIR ]] && printf "${COLOR_RED}Please run ./eosio_build.bash first!${COLOR_NC}" && exit 1
 echo "${COLOR_CYAN}====================================================================================="
 echo "========================== ${COLOR_WHITE}Starting EOSIO Tests${COLOR_CYAN} ==============================${COLOR_NC}"
-[[ ]]
-cd $BUILD_DIR
+$MONGO_ENABLED && execute bash -c "${BIN_LOCATION}/mongod --dbpath ${MONGODB_DATA_LOCATION} -f ${MONGODB_CONF} --logpath ${MONGODB_LOG_LOCATION}/mongod.log &"
+execute cd $BUILD_DIR
 execute make test
-cd $REPO_ROOT
-
+execute cd $REPO_ROOT
+# Cleanup
+echo "[Cleanup]"
+MONGO_PROCESS=$(ps aux | grep "${EOSIO_HOME}/bin/mongod " )
+if [[ ! -z $MONGO_PROCESS ]]; then
+    echo "Found mongodb running: "${MONGO_PROCESS}""
+    echo "Killing proccess..."
+    execute kill -15 $(echo $MONGO_PROCESS | awk '{print $2}')
+fi
 printf "\n${COLOR_RED}      ___           ___           ___                       ___\n"
 printf "     /  /\\         /  /\\         /  /\\        ___          /  /\\ \n"
 printf "    /  /:/_       /  /::\\       /  /:/_      /  /\\        /  /::\\ \n"
@@ -89,8 +103,4 @@ printf "   \\  \\:\\/:/     \\  \\:\\/:/     \\__\\/ /:/       /__/:/    \\  \\:
 printf "    \\  \\::/       \\  \\::/        /__/:/        \\__\\/      \\  \\::/ \n"
 printf "     \\__\\/         \\__\\/         \\__\\/                     \\__\\/ \n\n${COLOR_NC}"
 
-printf "==============================================================================================\\n"
-printf "${COLOR_GREEN}EOSIO has been installed into ${OPT_LOCATION}/eosio/bin!${COLOR_NC}"
-printf "\\n${COLOR_YELLOW}Uninstall with: ./scripts/eosio_uninstall.bash${COLOR_NC}\\n"
-printf "==============================================================================================\\n\\n"
 resources

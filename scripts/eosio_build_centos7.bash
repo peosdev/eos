@@ -240,7 +240,3 @@ if [[ ! -d $LLVM_ROOT ]]; then
 else
 	echo " - LLVM found @ ${LLVM_ROOT}."
 fi
-
-function print_instructions() {
-	return 0
-}
