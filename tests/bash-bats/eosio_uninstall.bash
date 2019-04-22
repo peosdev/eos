@@ -4,6 +4,16 @@ load test_helper
 SCRIPT_LOCATION="scripts/eosio_uninstall.bash"
 TEST_LABEL="[eosio_uninstall]"
 
+mkdir -p $SRC_LOCATION
+mkdir -p $OPT_LOCATION
+mkdir -p $VAR_LOCATION
+mkdir -p $BIN_LOCATION
+mkdir -p $VAR_LOCATION/log
+mkdir -p $ETC_LOCATION
+mkdir -p $LIB_LOCATION
+mkdir -p $MONGODB_LOG_LOCATION
+mkdir -p $MONGODB_DATA_LOCATION
+
 # A helper function is available to show output and status: `debug`
 
 @test "${TEST_LABEL} > Usage is visible with right interaction" {
@@ -53,3 +63,13 @@ TEST_LABEL="[eosio_uninstall]"
   ([[ ! "${output[*]}" =~ "Library/Application\ Support/eosio" ]] && [[ ! "${output[*]}" =~ ".local/share/eosio" ]]) && exit
   [[ "${output##*$'\n'}" == "[EOSIO Removal Complete]" ]] || exit
 }
+
+rm -rf $SRC_LOCATION
+rm -rf $OPT_LOCATION
+rm -rf $VAR_LOCATION
+rm -rf $BIN_LOCATION
+rm -rf $VAR_LOCATION/log
+rm -rf $ETC_LOCATION
+rm -rf $LIB_LOCATION
+rm -rf $MONGODB_LOG_LOCATION
+rm -rf $MONGODB_DATA_LOCATION

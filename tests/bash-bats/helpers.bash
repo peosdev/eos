@@ -4,7 +4,7 @@ load test_helper
 # A helper function is available to show output and status: `debug`
 
 # Load helpers (BE CAREFUL)
-. ./scripts/lib/helpers.bash
+. ./scripts/helpers/general.bash
 
 TEST_LABEL="[helpers]"
 
@@ -35,7 +35,6 @@ TEST_LABEL="[helpers]"
   NONINTERACTIVE=true
   PROCEED=true
   # Doesn't exists, no output
-  rm -rf $EOSIO_HOME
   run previous-install-prompt
   [[ -z $(echo "${output}") ]] || exit
   # Exists, prompt

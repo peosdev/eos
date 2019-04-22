@@ -8,18 +8,7 @@ export HOME="$BATS_TMPDIR/bats-eosio-user-home" # Ensure $HOME is available for 
 mkdir -p $HOME
 
 # Obtain dependency versions and paths
-. ./scripts/lib/eosio.bash
-
-# Setup directories; useful for uninstall.bash
-mkdir -p $SRC_LOCATION
-mkdir -p $OPT_LOCATION
-mkdir -p $VAR_LOCATION
-mkdir -p $BIN_LOCATION
-mkdir -p $VAR_LOCATION/log
-mkdir -p $ETC_LOCATION
-mkdir -p $LIB_LOCATION
-mkdir -p $MONGODB_LOG_LOCATION
-mkdir -p $MONGODB_DATA_LOCATION
+. ./scripts/helpers/eosio.bash
 
 # Ensure we're in the root directory to execute
 if [[ ! -d "tests" ]] && [[ ! -f "README.md" ]]; then

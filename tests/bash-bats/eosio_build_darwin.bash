@@ -26,7 +26,7 @@ TEST_LABEL="[eosio_build_darwin]"
 }
 
 @test "${TEST_LABEL} > Testing Executions" {
-  export CMAKE=${EOSIO_HOME}/cmake # Testing for if CMAKE already exists
+  export CMAKE=${BATS_TMPDIR}/cmake # Testing for if CMAKE already exists
   touch $CMAKE
   run bash -c "printf \"y\n%.0s\" {1..100} | ./$SCRIPT_LOCATION"
   ### Make sure deps are loaded properly

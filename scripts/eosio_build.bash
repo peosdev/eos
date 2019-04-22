@@ -104,7 +104,7 @@ if [ $# -ne 0 ]; then
 fi
 
 # Load eosio specific helper functions
-. ./scripts/lib/eosio.bash
+. ./scripts/helpers/eosio.bash
 
 # If the same version has already been installed...
 previous-install-prompt

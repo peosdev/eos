@@ -2,7 +2,7 @@
 set -eo pipefail
 
 # Load bash script helper functions
-. ./scripts/lib/eosio.bash
+. ./scripts/helpers/eosio.bash
 
 usage() {
    printf "Usage --- \\n $ %s [ --full ] [ --force ]\\n

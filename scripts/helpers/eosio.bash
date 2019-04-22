@@ -1,7 +1,7 @@
 # Obtain dependency versions; Must come first in the script
 . ./scripts/.environment
 # Load general helpers
-. ./scripts/lib/helpers.bash
+. ./scripts/helpers/general.bash
 
 # Checks for Arch and OS + Support for tests setting them manually
 ## Necessary for linux exclusion while running bats tests/bash-bats/*.bash

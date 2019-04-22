@@ -33,10 +33,10 @@ VERSION=1.0
 ##########################################################################
 
 # Load bash script helper functions
-. ./scripts/lib/helpers.bash
+. ./scripts/helpers/general.bash
 
 # Load eosio specific helper functions
-. ./scripts/lib/eosio.bash
+. ./scripts/helpers/eosio.bash
 
 trap cleanup EXIT
 

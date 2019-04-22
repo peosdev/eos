@@ -33,10 +33,10 @@ VERSION=2.0
 ##########################################################################
 
 # Load bash script helper functions
-. ./scripts/lib/helpers.bash
+. ./scripts/helpers/general.bash
 
 # Load eosio specific helper functions
-. ./scripts/lib/eosio.bash
+. ./scripts/helpers/eosio.bash
 
 CMAKE_BUILD_TYPE=Release
 TIME_BEGIN=$( date -u +%s )
