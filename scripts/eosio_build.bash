@@ -47,7 +47,7 @@ function usage() {
 
 TIME_BEGIN=$( date -u +%s )
 if [ $# -ne 0 ]; then
-   while getopts "o:s:b:i:ycdh" opt; do
+   while getopts "o:s:b:i:ycdhm" opt; do
       case "${opt}" in
          o )
             options=( "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
@@ -81,6 +81,9 @@ if [ $# -ne 0 ]; then
          ;;
          d )
             DOXYGEN=true
+         ;;
+         m )
+            MONGO_ENABLED=true
          ;;
          h)
             usage
@@ -175,9 +178,10 @@ echo "${COLOR_CYAN}=============================================================
 echo "======================= ${COLOR_WHITE}Starting EOSIO Build${COLOR_CYAN} ===========================${COLOR_NC}"
 execute mkdir -p $BUILD_DIR
 execute cd $BUILD_DIR
+$MONGO_ENABLED && LOCAL_CMAKE_FLAGS="-DBUILD_MONGO_DB_PLUGIN=true ${LOCAL_CMAKE_FLAGS}" # Enable Mongo DB Plugin if user has enabled -m
 execute bash -c "$CMAKE -DCMAKE_BUILD_TYPE='${CMAKE_BUILD_TYPE}' -DCMAKE_CXX_COMPILER='${CXX_COMPILER}' \
 -DCMAKE_C_COMPILER='${C_COMPILER}' -DCORE_SYMBOL_NAME='${CORE_SYMBOL_NAME}' -DOPENSSL_ROOT_DIR='${OPENSSL_ROOT_DIR}' \
--DBUILD_MONGO_DB_PLUGIN=true -DENABLE_COVERAGE_TESTING='${ENABLE_COVERAGE_TESTING}' -DBUILD_DOXYGEN='${DOXYGEN}' \
+$MONGO_CMAKE_FLAG -DENABLE_COVERAGE_TESTING='${ENABLE_COVERAGE_TESTING}' -DBUILD_DOXYGEN='${DOXYGEN}' \
 -DCMAKE_PREFIX_PATH='${EOSIO_HOME}' -DCMAKE_INSTALL_PREFIX='${EOSIO_HOME}' ${LOCAL_CMAKE_FLAGS} '${REPO_ROOT}'"
 execute make -j$JOBS
 execute cd $REPO_ROOT 1>/dev/null

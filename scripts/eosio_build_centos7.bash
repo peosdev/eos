@@ -170,55 +170,57 @@ fi
 
 echo ""
 
-echo "${COLOR_CYAN}[Checking MongoDB installation]${COLOR_NC}"
-if [[ ! -d $MONGODB_ROOT ]]; then
-	echo "Installing MongoDB into ${MONGODB_ROOT}..."
-	execute bash -c "curl -OL https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-$MONGODB_VERSION.tgz \
-	&& tar -xzf mongodb-linux-x86_64-amazon-$MONGODB_VERSION.tgz \
-	&& mv $SRC_LOCATION/mongodb-linux-x86_64-amazon-$MONGODB_VERSION $MONGODB_ROOT \
-	&& touch $MONGODB_LOG_LOCATION/mongod.log \
-	&& rm -f mongodb-linux-x86_64-amazon-$MONGODB_VERSION.tgz \
-	&& cp -f $REPO_ROOT/scripts/mongod.conf $MONGODB_CONF \
-	&& mkdir -p $MONGODB_DATA_LOCATION \
-	&& rm -rf $MONGODB_LINK_LOCATION \
-	&& rm -rf $BIN_LOCATION/mongod \
-	&& ln -s $MONGODB_ROOT $MONGODB_LINK_LOCATION \
-	&& ln -s $MONGODB_LINK_LOCATION/bin/mongod $BIN_LOCATION/mongod"
-	echo " - MongoDB successfully installed @ ${MONGODB_ROOT}."
-else
-	echo " - MongoDB found with correct version @ ${MONGODB_ROOT}."
-fi
-echo "${COLOR_CYAN}[Checking MongoDB C driver installation]${COLOR_NC}"
-if [[ ! -d $MONGO_C_DRIVER_ROOT ]]; then
-	echo "Installing MongoDB C driver..."
-	execute bash -c "curl -LO https://github.com/mongodb/mongo-c-driver/releases/download/$MONGO_C_DRIVER_VERSION/mongo-c-driver-$MONGO_C_DRIVER_VERSION.tar.gz \
-	&& tar -xzf mongo-c-driver-$MONGO_C_DRIVER_VERSION.tar.gz \
-	&& cd mongo-c-driver-$MONGO_C_DRIVER_VERSION \
-	&& mkdir -p cmake-build \
-	&& cd cmake-build \
-	&& $CMAKE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$EOSIO_HOME -DENABLE_BSON=ON -DENABLE_SSL=OPENSSL -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF -DENABLE_STATIC=ON .. \
-	&& make -j${JOBS} \
-	&& make install \
-	&& cd ../.. \
-	&& rm mongo-c-driver-$MONGO_C_DRIVER_VERSION.tar.gz"
-	echo " - MongoDB C driver successfully installed @ ${MONGO_C_DRIVER_ROOT}."
-else
-	echo " - MongoDB C driver found with correct version @ ${MONGO_C_DRIVER_ROOT}."
-fi
-echo "${COLOR_CYAN}[Checking MongoDB C++ driver installation]${COLOR_NC}"
-if [[ ! -d $MONGO_CXX_DRIVER_ROOT ]]; then
-	echo "Installing MongoDB C++ driver..."
-	execute bash -c "curl -L https://github.com/mongodb/mongo-cxx-driver/archive/r$MONGO_CXX_DRIVER_VERSION.tar.gz -o mongo-cxx-driver-r$MONGO_CXX_DRIVER_VERSION.tar.gz \
-	&& tar -xzf mongo-cxx-driver-r${MONGO_CXX_DRIVER_VERSION}.tar.gz \
-	&& cd mongo-cxx-driver-r$MONGO_CXX_DRIVER_VERSION/build \
-	&& $CMAKE -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$EOSIO_HOME .. \
-	&& make -j${JOBS} VERBOSE=1 \
-	&& make install \
-	&& cd ../.. \
-	&& rm -f mongo-cxx-driver-r$MONGO_CXX_DRIVER_VERSION.tar.gz"
-	echo " - MongoDB C++ driver successfully installed @ ${MONGO_CXX_DRIVER_ROOT}."
-else
-	echo " - MongoDB C++ driver found with correct version @ ${MONGO_CXX_DRIVER_ROOT}."
+if $MONGO_ENABLED; then
+	echo "${COLOR_CYAN}[Checking MongoDB installation]${COLOR_NC}"
+	if [[ ! -d $MONGODB_ROOT ]]; then
+		echo "Installing MongoDB into ${MONGODB_ROOT}..."
+		execute bash -c "curl -OL https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-$MONGODB_VERSION.tgz \
+		&& tar -xzf mongodb-linux-x86_64-amazon-$MONGODB_VERSION.tgz \
+		&& mv $SRC_LOCATION/mongodb-linux-x86_64-amazon-$MONGODB_VERSION $MONGODB_ROOT \
+		&& touch $MONGODB_LOG_LOCATION/mongod.log \
+		&& rm -f mongodb-linux-x86_64-amazon-$MONGODB_VERSION.tgz \
+		&& cp -f $REPO_ROOT/scripts/mongod.conf $MONGODB_CONF \
+		&& mkdir -p $MONGODB_DATA_LOCATION \
+		&& rm -rf $MONGODB_LINK_LOCATION \
+		&& rm -rf $BIN_LOCATION/mongod \
+		&& ln -s $MONGODB_ROOT $MONGODB_LINK_LOCATION \
+		&& ln -s $MONGODB_LINK_LOCATION/bin/mongod $BIN_LOCATION/mongod"
+		echo " - MongoDB successfully installed @ ${MONGODB_ROOT}."
+	else
+		echo " - MongoDB found with correct version @ ${MONGODB_ROOT}."
+	fi
+	echo "${COLOR_CYAN}[Checking MongoDB C driver installation]${COLOR_NC}"
+	if [[ ! -d $MONGO_C_DRIVER_ROOT ]]; then
+		echo "Installing MongoDB C driver..."
+		execute bash -c "curl -LO https://github.com/mongodb/mongo-c-driver/releases/download/$MONGO_C_DRIVER_VERSION/mongo-c-driver-$MONGO_C_DRIVER_VERSION.tar.gz \
+		&& tar -xzf mongo-c-driver-$MONGO_C_DRIVER_VERSION.tar.gz \
+		&& cd mongo-c-driver-$MONGO_C_DRIVER_VERSION \
+		&& mkdir -p cmake-build \
+		&& cd cmake-build \
+		&& $CMAKE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$EOSIO_HOME -DENABLE_BSON=ON -DENABLE_SSL=OPENSSL -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF -DENABLE_STATIC=ON .. \
+		&& make -j${JOBS} \
+		&& make install \
+		&& cd ../.. \
+		&& rm mongo-c-driver-$MONGO_C_DRIVER_VERSION.tar.gz"
+		echo " - MongoDB C driver successfully installed @ ${MONGO_C_DRIVER_ROOT}."
+	else
+		echo " - MongoDB C driver found with correct version @ ${MONGO_C_DRIVER_ROOT}."
+	fi
+	echo "${COLOR_CYAN}[Checking MongoDB C++ driver installation]${COLOR_NC}"
+	if [[ ! -d $MONGO_CXX_DRIVER_ROOT ]]; then
+		echo "Installing MongoDB C++ driver..."
+		execute bash -c "curl -L https://github.com/mongodb/mongo-cxx-driver/archive/r$MONGO_CXX_DRIVER_VERSION.tar.gz -o mongo-cxx-driver-r$MONGO_CXX_DRIVER_VERSION.tar.gz \
+		&& tar -xzf mongo-cxx-driver-r${MONGO_CXX_DRIVER_VERSION}.tar.gz \
+		&& cd mongo-cxx-driver-r$MONGO_CXX_DRIVER_VERSION/build \
+		&& $CMAKE -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$EOSIO_HOME .. \
+		&& make -j${JOBS} VERBOSE=1 \
+		&& make install \
+		&& cd ../.. \
+		&& rm -f mongo-cxx-driver-r$MONGO_CXX_DRIVER_VERSION.tar.gz"
+		echo " - MongoDB C++ driver successfully installed @ ${MONGO_CXX_DRIVER_ROOT}."
+	else
+		echo " - MongoDB C++ driver found with correct version @ ${MONGO_CXX_DRIVER_ROOT}."
+	fi
 fi
 
 echo ""

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eio pipefail
-VERSION=2.0
+VERSION=1.0
 ##########################################################################
 # This is the EOSIO automated install script for Linux and Mac OS.
 # This file was downloaded from https://github.com/EOSIO/eos
@@ -38,6 +38,30 @@ VERSION=2.0
 # Load eosio specific helper functions
 . ./scripts/lib/eosio.bash
 
+if [ $# -ne 0 ]; then
+   while getopts "m" opt; do
+      case "${opt}" in
+         m )
+            MONGO_ENABLED=true
+         ;;
+         h)
+            usage
+         ;;
+         ? )
+            echo "Invalid Option!" 1>&2
+            usage
+         ;;
+         : )
+            echo "Invalid Option: -${OPTARG} requires an argument." 1>&2
+            usage
+         ;;
+         * )
+            usage
+         ;;
+      esac
+   done
+fi
+
 CMAKE_BUILD_TYPE=Release
 TIME_BEGIN=$( date -u +%s )
 
@@ -47,10 +71,11 @@ txtrst=$(tput sgr0)
 
 [[ ! -d $BUILD_DIR ]] && printf "${COLOR_RED}Please run ./eosio_build.bash first!${COLOR_NC}" && exit 1
 echo "${COLOR_CYAN}====================================================================================="
-echo "========================== ${COLOR_WHITE}Starting EOSIO Installation${COLOR_CYAN} ==============================${COLOR_NC}"
-pushd "${BUILD_DIR}" 1>/dev/null
-execute make install
-popd &> /dev/null 
+echo "========================== ${COLOR_WHITE}Starting EOSIO Tests${COLOR_CYAN} ==============================${COLOR_NC}"
+[[ ]]
+cd $BUILD_DIR
+execute make test
+cd $REPO_ROOT
 
 printf "\n${COLOR_RED}      ___           ___           ___                       ___\n"
 printf "     /  /\\         /  /\\         /  /\\        ___          /  /\\ \n"
