@@ -182,7 +182,7 @@ $MONGO_ENABLED && LOCAL_CMAKE_FLAGS="-DBUILD_MONGO_DB_PLUGIN=true ${LOCAL_CMAKE_
 execute bash -c "$CMAKE -DCMAKE_BUILD_TYPE='${CMAKE_BUILD_TYPE}' -DCMAKE_CXX_COMPILER='${CXX_COMPILER}' \
 -DCMAKE_C_COMPILER='${C_COMPILER}' -DCORE_SYMBOL_NAME='${CORE_SYMBOL_NAME}' -DOPENSSL_ROOT_DIR='${OPENSSL_ROOT_DIR}' \
 $MONGO_CMAKE_FLAG -DENABLE_COVERAGE_TESTING='${ENABLE_COVERAGE_TESTING}' -DBUILD_DOXYGEN='${DOXYGEN}' \
--DCMAKE_PREFIX_PATH='${EOSIO_HOME}' -DCMAKE_INSTALL_PREFIX='${EOSIO_HOME}' ${LOCAL_CMAKE_FLAGS} '${REPO_ROOT}'"
+-DCMAKE_INSTALL_PREFIX='${EOSIO_HOME}' ${LOCAL_CMAKE_FLAGS} '${REPO_ROOT}'"
 execute make -j$JOBS
 execute cd $REPO_ROOT 1>/dev/null
 
@@ -204,6 +204,8 @@ echo "${COLOR_YELLOW}Uninstall with: ./scripts/eosio_uninstall.bash${COLOR_NC}"
 
 echo ""
 echo "${COLOR_CYAN}If you wish to perform tests to ensure functional code:${COLOR_NC}"
-echo "./scripts/eosio_test.bash"
+echo "${BIN_LOCATION}/mongod --dbpath ${MONGODB_DATA_LOCATION} -f ${MONGODB_CONF} --logpath ${MONGODB_LOG_LOCATION}/mongod.log &"
+echo "cd ./build && PATH=\$PATH:$HOME/opt/mongodb/bin make test" # PATH is set as currently 'mongo' binary is required for the mongodb test
+
 echo ""
 resources
