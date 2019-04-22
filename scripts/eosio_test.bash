@@ -38,6 +38,8 @@ VERSION=1.0
 # Load eosio specific helper functions
 . ./scripts/lib/eosio.bash
 
+trap cleanup EXIT
+
 function usage() {
    printf "Usage: $0 OPTION...
   -m          Start MongoDB
@@ -84,13 +86,15 @@ execute cd $BUILD_DIR
 execute make test
 execute cd $REPO_ROOT
 # Cleanup
-echo "[Cleanup]"
-MONGO_PROCESS=$(ps aux | grep "${EOSIO_HOME}/bin/mongod " )
-if [[ ! -z $MONGO_PROCESS ]]; then
-    echo "Found mongodb running: "${MONGO_PROCESS}""
-    echo "Killing proccess..."
-    execute kill -15 $(echo $MONGO_PROCESS | awk '{print $2}')
-fi
+function cleanup() {
+   echo "[Cleanup]"
+   MONGO_PROCESS=$(ps aux | grep "${EOSIO_HOME}/bin/mongod " )
+   if [[ ! -z $MONGO_PROCESS ]]; then
+      echo "Found mongodb running: "${MONGO_PROCESS}""
+      echo "Killing proccess..."
+      execute kill -15 $(echo $MONGO_PROCESS | awk '{print $2}')
+   fi
+}
 printf "\n${COLOR_RED}      ___           ___           ___                       ___\n"
 printf "     /  /\\         /  /\\         /  /\\        ___          /  /\\ \n"
 printf "    /  /:/_       /  /::\\       /  /:/_      /  /\\        /  /::\\ \n"

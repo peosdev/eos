@@ -106,8 +106,8 @@ fi
 # Load eosio specific helper functions
 . ./scripts/lib/eosio.bash
 
-# [[ -d ${EOSIO_HOME} ]] && echo "EOSIO has already been installed into ${EOSIO_HOME}... It's suggested that you eosio_uninstall.bash before re-running this script... Proceeding anyway in 10 seconds..." && sleep 10
-
+# If the same version has already been installed...
+previous-install-prompt
 # Setup directories and envs we need
 setup
 # Setup tmp directory; handle if noexec exists

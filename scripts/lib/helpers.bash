@@ -47,5 +47,20 @@ function ensure-submodules-up-to-date() {
 }
 
 function ensure-sudo() {
-    if [[ $DRYRUN == false ]] && [[ -z $( command -v sudo ) ]]; then echo "You must have sudo installed to run the build scripts!" && exit 1; fi
+  if [[ $DRYRUN == false ]] && [[ -z $( command -v sudo ) ]]; then echo "You must have sudo installed to run the build scripts!" && exit 1; fi
+}
+
+function previous-install-prompt() {
+  if [[ -d $EOSIO_HOME ]]; then
+    echo "EOSIO has already been installed into ${EOSIO_HOME}... It's suggested that you eosio_uninstall.bash before re-running this script."
+    while true; do
+      [[ $NONINTERACTIVE == false ]] && read -p "${COLOR_YELLOW}Do you wish to proceed anyway? (y/n)${COLOR_NC} " PROCEED
+      case $PROCEED in
+        "" ) echo "What would you like to do?";;
+        0 | true | [Yy]* ) break;;
+        1 | false | [Nn]* ) exit;;
+        * ) echo "Please type 'y' for yes or 'n' for no.";;
+      esac
+	  done
+  fi
 }

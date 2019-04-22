@@ -30,3 +30,17 @@ TEST_LABEL="[helpers]"
   VERBOSE=
   ( [[ ! $output =~ "Executing: echo VERBOSE!" ]] && [[ $status -eq 0 ]] ) || exit
 }
+
+@test "${TEST_LABEL} > previous install prompt" {
+  NONINTERACTIVE=true
+  PROCEED=true
+  # Doesn't exists, no output
+  rm -rf $EOSIO_HOME
+  run previous-install-prompt
+  [[ -z $(echo "${output}") ]] || exit
+  # Exists, prompt
+  mkdir -p $EOSIO_HOME
+  run previous-install-prompt
+  [[ ! -z $(echo "${output}" | grep "EOSIO has already been installed into ${EOSIO_HOME}") ]] || exit
+  rm -rf $EOSIO_HOME
+}
