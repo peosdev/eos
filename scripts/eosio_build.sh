@@ -30,12 +30,7 @@
 # https://github.com/EOSIO/eos/blob/master/LICENSE
 ##########################################################################
 
-VERSION=2.3 # Build script version
-<<<<<<< HEAD
-=======
-
-# defaults for command-line arguments
->>>>>>> develop
+VERSION=2.4 # Build script version
 CMAKE_BUILD_TYPE=Release
 DOXYGEN=false
 ENABLE_COVERAGE_TESTING=false
