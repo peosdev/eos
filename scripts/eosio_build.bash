@@ -188,8 +188,8 @@ execute cd $REPO_ROOT 1>/dev/null
 
 TIME_END=$(( $(date -u +%s) - $TIME_BEGIN ))
 
-echo "${COLOR_RED}_______  _______  _______ _________ _______"
-echo '(  ____ \(  ___  )(  ____ \\\\__   __/(  ___  )'
+echo " _______  _______  _______ _________ _______"
+echo "(  ____ \(  ___  )(  ____   __   __ (  ___  )"
 echo "| (    \/| (   ) || (    \/   ) (   | (   ) |"
 echo "| (__    | |   | || (_____    | |   | |   | |"
 echo "|  __)   | |   | |(_____  )   | |   | |   | |"
@@ -205,7 +205,7 @@ echo "${COLOR_YELLOW}Uninstall with: ./scripts/eosio_uninstall.bash${COLOR_NC}"
 echo ""
 echo "${COLOR_CYAN}If you wish to perform tests to ensure functional code:${COLOR_NC}"
 echo "${BIN_LOCATION}/mongod --dbpath ${MONGODB_DATA_LOCATION} -f ${MONGODB_CONF} --logpath ${MONGODB_LOG_LOCATION}/mongod.log &"
-echo "cd ./build && PATH=\$PATH:$HOME/opt/mongodb/bin make test" # PATH is set as currently 'mongo' binary is required for the mongodb test
+echo "cd ./build && PATH=\$PATH:$OPT_LOCATION/mongodb/bin make test" # PATH is set as currently 'mongo' binary is required for the mongodb test
 
 echo ""
 resources
