@@ -3,6 +3,7 @@ env:
   ANKA_TEMPLATE_TAG: "clean::cicd::git-ssh::nas::brew"
   CHECKSUMABLE: "scripts/eosio_build*"
   MAC_TAG: "eosio_2-3"
+  WORKDIR: "/private/var/tmp/ankafs.0"
 
 steps:
 
@@ -32,6 +33,7 @@ steps:
         vm-name: $ANKA_MOJAVE_TEMPLATE
         vm-registry-tag: "${ANKA_TEMPLATE_TAG}::${MAC_TAG}"
         always-pull: true
+        workdir: $WORKDIR
         debug: true
         wait-network: true
     agents:
@@ -336,6 +338,7 @@ steps:
       chef/anka#v0.4.3:
         vm-name: $ANKA_MOJAVE_TEMPLATE
         vm-registry-tag: "${ANKA_TEMPLATE_TAG}::${MAC_TAG}"
+        workdir: $WORKDIR
         always-pull: true
         debug: true
         wait-network: true
@@ -354,6 +357,7 @@ steps:
       chef/anka#v0.4.3:
         vm-name: $ANKA_MOJAVE_TEMPLATE
         vm-registry-tag: "${ANKA_TEMPLATE_TAG}::${MAC_TAG}"
+        workdir: $WORKDIR
         always-pull: true
         debug: true
         wait-network: true
