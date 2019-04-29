@@ -327,7 +327,7 @@ steps:
   - label: ":darwin: [Darwin] Mojave Tests"
     command:
       # ssh needed to work around tty limitations of anka run (they're releasing a fix in the next major version)
-      - "ssh -i ~/.ssh/localhost anka@localhost \"cd $WORKDIR && PATH=$PATH ./scripts/parallel-test.sh /Network/NAS/MAC_FLEET/BUILDKITE/artifacts/${ANKA_MOJAVE_TEMPLATE}-${BUILDKITE_PIPELINE_SLUG}-${BUILDKITE_BUILD_ID}.tar.gz\"; test $? -ne 0 && exit $?"
+      - "ssh -i ~/.ssh/localhost anka@localhost \"cd $WORKDIR && PATH=$PATH ./scripts/parallel-test.sh /Network/NAS/MAC_FLEET/BUILDKITE/artifacts/${ANKA_MOJAVE_TEMPLATE}-${BUILDKITE_PIPELINE_SLUG}-${BUILDKITE_BUILD_ID}.tar.gz\"; test \$? -ne 0 && exit \$?"
     artifact_paths:
       - "build/genesis.json"
       - "build/config.ini"
@@ -345,7 +345,7 @@ steps:
 
   - label: ":darwin: [Darwin] Mojave Tests"
     command:
-      - "ssh -i ~/.ssh/localhost anka@localhost \"cd $WORKDIR && PATH=$PATH ./scripts/serial-test.sh /Network/NAS/MAC_FLEET/BUILDKITE/artifacts/${ANKA_MOJAVE_TEMPLATE}-${BUILDKITE_PIPELINE_SLUG}-${BUILDKITE_BUILD_ID}.tar.gz\"; test $? -ne 0 && exit $?"
+      - "ssh -i ~/.ssh/localhost anka@localhost \"cd $WORKDIR && PATH=$PATH ./scripts/serial-test.sh /Network/NAS/MAC_FLEET/BUILDKITE/artifacts/${ANKA_MOJAVE_TEMPLATE}-${BUILDKITE_PIPELINE_SLUG}-${BUILDKITE_BUILD_ID}.tar.gz\"; test \$? -ne 0 && exit \$?"
     artifact_paths:
       - "build/mongod.log"
       - "build/genesis.json"
