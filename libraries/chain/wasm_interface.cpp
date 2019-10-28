@@ -16,7 +16,10 @@
 #include <fc/exception/exception.hpp>
 #include <fc/crypto/sha256.hpp>
 #include <fc/crypto/sha1.hpp>
+#include <fc/crypto/sha3.hpp>
 #include <fc/io/raw.hpp>
+#include <openssl/ec.h>
+#include <openssl/bn.h>
 
 #include <softfloat.hpp>
 #include <compiler_builtins.hpp>
@@ -861,6 +864,96 @@ class crypto_api : public context_aware_api {
          }
       }
 
+      enum class ec_add_tags : uint64_t {
+         r1_v1_compressed = 0,
+         r1_v1_uncompressed = 1,
+         k1_v1_compressed = 2,
+         k1_v1_uncompressed = 3
+      };
+
+      /*
+      template <bool IsCompressed>
+      static std::optional<fc::ecc::ec_point> ec_add_impl(uint64_t tag, const char* p_x_bytes, const char* p_y_bytes, const char* q_x_bytes, const char* q_y_bytes) {
+         using y_type = std::conditional_t<IsCompressed, int, fc::bigint>;
+         constexpr auto is_r1 = [](uint64_t tag) { return tag == static_cast<uint64_t>(ec_add_tags::r1_v1_compressed) || tag == static_cast<uint64_t>(ec_add_tags::r1_v1_uncompressed); };
+         fc::bigint p_x(p_x_bytes, 32);
+         fc::bigint q_x(q_x_bytes, 32);
+         std::cout << "AX: ";
+         BN_print_fp(stdout, p_x.get());
+         std::cout << " BX: ";
+         BN_print_fp(stdout, p_x.get());
+         std::cout << "\n";
+
+         y_type p_y, q_y;
+         fc::ecc::ec_point p, q;
+         if constexpr (IsCompressed) {
+            p_y = (*((uint8_t*)p_y_bytes))&1;
+            q_y = (*((uint8_t*)q_y_bytes))&1;
+         } else {
+            p_y = fc::bigint(p_y_bytes, 32);
+            q_y = fc::bigint(q_y_bytes, 32);
+         }
+         uint64_t curve = is_r1(tag) ? fc::ecc::ec_point::r1_curve : fc::ecc::ec_point::k1_curve;
+         p = fc::ecc::ec_point(p_x, p_y, curve);
+         q = fc::ecc::ec_point(q_x, q_y, curve);
+
+         if (p.valid() && q.valid())
+            return p.add(q);
+         return {};
+      }
+      */
+
+      int64_t ec_add(const fc::ecc::r1_ec_point& p, const fc::ecc::r1_ec_point& q, fc::ecc::r1_ec_point& r) {
+         uint64_t curve = p.get_curve();
+         r = p.add(q);
+         return 0;
+      }
+
+      /*
+      int64_t ec_add(uint64_t tag, array_ptr<char> input, uint32_t input_len, array_ptr<char> output, uint32_t output_len) {
+         uint32_t input_len_lb = 0;
+         uint32_t p_y_offset = 0;
+         uint32_t q_y_offset = 0;
+         constexpr auto to_ui = [](auto tag) { return static_cast<std::underlying_type_t<decltype(tag)>>(tag); };
+         using ret_type = std::optional<fc::ecc::ec_point>;
+         const auto& partial = [&](uint64_t tag) -> std::function<ret_type(const char*, uint32_t)>{
+            switch(tag) {
+               case to_ui(ec_add_tags::k1_v1_compressed):
+               case to_ui(ec_add_tags::r1_v1_compressed):
+               {
+                  return {[&](const char* base, uint32_t len) -> ret_type {
+                     // 33 bytes for x and y
+                     if (len < 66) return {};
+                     return ec_add_impl<true>(tag, base, base+32, base+33, base+65);
+                  }};
+               }
+               case to_ui(ec_add_tags::k1_v1_uncompressed):
+               case to_ui(ec_add_tags::r1_v1_uncompressed):
+               {
+                  return {[&](const char* base, uint32_t len) -> ret_type {
+                     // 64 bytes for x and y
+                     if (len < 128) return {};
+                     return ec_add_impl<false>(tag, base, base+32, base+64, base+96);
+                  }};
+               }
+               default:
+                  return {[](const char* base, uint32_t len) -> ret_type {
+                     return {};
+                  }};
+            }
+         }(tag);
+
+         const auto& ret = partial(input.value, input_len);
+         if (!ret)
+            return -1;
+         if (output_len < 64)
+            return -2;
+         std::cout << "Foo\n";
+         ret->to_bin((uint8_t*)output.value, 64);
+         return 64;
+      }
+      */
+
       template<class Encoder> auto encode(char* data, uint32_t datalen) {
          Encoder e;
          const size_t bs = eosio::chain::config::hashing_checktime_block_size;
@@ -872,6 +965,19 @@ class crypto_api : public context_aware_api {
          }
          e.write( data, datalen );
          return e.result();
+      }
+
+      template<class Encoder, typename Extended> auto encode(char* data, uint32_t datalen, Extended&& ext) {
+         Encoder e;
+         const size_t bs = eosio::chain::config::hashing_checktime_block_size;
+         while ( datalen > bs ) {
+            e.write( data, bs );
+            data += bs;
+            datalen -= bs;
+            context.trx_context.checktime();
+         }
+         e.write( data, datalen );
+         return e.result(ext);
       }
 
       void assert_sha256(array_ptr<char> data, uint32_t datalen, const fc::sha256& hash_val) {
@@ -894,6 +1000,16 @@ class crypto_api : public context_aware_api {
          EOS_ASSERT( result == hash_val, crypto_api_exception, "hash mismatch" );
       }
 
+      void assert_sha3(array_ptr<char> data, uint32_t datalen, const fc::sha3& hash_val) {
+         auto result = encode<fc::sha3::encoder>( data, datalen, true );
+         EOS_ASSERT( result == hash_val, crypto_api_exception, "hash mismatch" );
+      }
+
+      void assert_keccak(array_ptr<char> data, uint32_t datalen, const fc::sha3& hash_val) {
+         auto result = encode<fc::sha3::encoder>( data, datalen, false );
+         EOS_ASSERT( result == hash_val, crypto_api_exception, "hash mismatch" );
+      }
+
       void sha1(array_ptr<char> data, uint32_t datalen, fc::sha1& hash_val) {
          hash_val = encode<fc::sha1::encoder>( data, datalen );
       }
@@ -908,6 +1024,14 @@ class crypto_api : public context_aware_api {
 
       void ripemd160(array_ptr<char> data, uint32_t datalen, fc::ripemd160& hash_val) {
          hash_val = encode<fc::ripemd160::encoder>( data, datalen );
+      }
+
+      void sha3(array_ptr<char> data, uint32_t datalen, fc::sha3& hash_val) {
+         hash_val = encode<fc::sha3::encoder>( data, datalen, true );
+      }
+
+      void keccak(array_ptr<char> data, uint32_t datalen, fc::sha3& hash_val) {
+         hash_val = encode<fc::sha3::encoder>( data, datalen, false );
       }
 };
 
@@ -1056,7 +1180,7 @@ class system_api : public context_aware_api {
       }
 };
 
-constexpr size_t max_assert_message = 1024;
+static constexpr size_t max_assert_message = 1024;
 
 class context_free_system_api :  public context_aware_api {
 public:
@@ -1924,16 +2048,21 @@ REGISTER_INTRINSICS( database_api,
 );
 
 REGISTER_INTRINSICS(crypto_api,
-   (assert_recover_key,     void(int, int, int, int, int) )
-   (recover_key,            int(int, int, int, int, int)  )
-   (assert_sha256,          void(int, int, int)           )
-   (assert_sha1,            void(int, int, int)           )
-   (assert_sha512,          void(int, int, int)           )
-   (assert_ripemd160,       void(int, int, int)           )
-   (sha1,                   void(int, int, int)           )
-   (sha256,                 void(int, int, int)           )
-   (sha512,                 void(int, int, int)           )
-   (ripemd160,              void(int, int, int)           )
+   (assert_recover_key,     void(int, int, int, int, int)                )
+   (recover_key,            int(int, int, int, int, int)                 )
+   (ec_add,                 int64_t(int, int, int)                       ) //int64_t, int, int, int, int) )
+   (assert_sha256,          void(int, int, int)                          )
+   (assert_sha1,            void(int, int, int)                          )
+   (assert_sha512,          void(int, int, int)                          )
+   (assert_ripemd160,       void(int, int, int)                          )
+   (assert_sha3,            void(int, int, int)                          )
+   (assert_keccak,          void(int, int, int)                          )
+   (sha1,                   void(int, int, int)                          )
+   (sha256,                 void(int, int, int)                          )
+   (sha512,                 void(int, int, int)                          )
+   (ripemd160,              void(int, int, int)                          )
+   (sha3,                   void(int, int, int)                          )
+   (keccak,                 void(int, int, int)                          )
 );
 
 

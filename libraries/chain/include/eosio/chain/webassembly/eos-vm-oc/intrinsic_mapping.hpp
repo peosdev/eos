@@ -248,7 +248,12 @@ constexpr auto intrinsic_table = boost::hana::make_tuple(
    "eosio_injection._eosio_i32_to_f64"_s,
    "eosio_injection._eosio_i64_to_f64"_s,
    "eosio_injection._eosio_ui32_to_f64"_s,
-   "eosio_injection._eosio_ui64_to_f64"_s
+   "eosio_injection._eosio_ui64_to_f64"_s,
+   "env.assert_sha3"_s,
+   "env.assert_keccak"_s,
+   "env.sha3"_s,
+   "env.keccak"_s,
+   "env.ec_add"_s
 );
 
 }}}

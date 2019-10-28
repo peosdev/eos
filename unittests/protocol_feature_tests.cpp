@@ -1058,6 +1058,148 @@ BOOST_AUTO_TEST_CASE( get_sender_test ) { try {
    );
 } FC_LOG_AND_RETHROW() }
 
+BOOST_AUTO_TEST_CASE( crypto_intrinsics_test ) { try {
+   tester c( setup_policy::preactivate_feature_and_new_bios );
+
+   const auto& tester1_account = account_name("tester1");
+   c.create_accounts( {tester1_account} );
+   c.produce_block();
+
+   BOOST_CHECK_EXCEPTION(  c.set_code( tester1_account, contracts::crypto_sha3_test_wasm() ),
+                           wasm_exception,
+                           fc_exception_message_is( "env.sha3 unresolveable" ) );
+
+   BOOST_CHECK_EXCEPTION(  c.set_code( tester1_account, contracts::crypto_keccak_test_wasm() ),
+                           wasm_exception,
+                           fc_exception_message_is( "env.keccak unresolveable" ) );
+
+   BOOST_CHECK_EXCEPTION(  c.set_code( tester1_account, contracts::crypto_assert_sha3_test_wasm() ),
+                           wasm_exception,
+                           fc_exception_message_is( "env.assert_sha3 unresolveable" ) );
+
+   BOOST_CHECK_EXCEPTION(  c.set_code( tester1_account, contracts::crypto_assert_keccak_test_wasm() ),
+                           wasm_exception,
+                           fc_exception_message_is( "env.assert_keccak unresolveable" ) );
+
+   BOOST_CHECK_EXCEPTION(  c.set_code( tester1_account, contracts::crypto_ec_add_test_wasm() ),
+                           wasm_exception,
+                           fc_exception_message_is( "env.ec_add unresolveable" ) );
+
+   const auto& pfm = c.control->get_protocol_feature_manager();
+   const auto& d = pfm.get_builtin_digest( builtin_protocol_feature_t::crypto_intrinsics_extension );
+   BOOST_REQUIRE( d );
+
+   c.preactivate_protocol_features( {*d} );
+   c.produce_block();
+
+   c.set_code( tester1_account, contracts::crypto_sha3_test_wasm() );
+   c.produce_block();
+   c.set_code( tester1_account, contracts::crypto_assert_sha3_test_wasm() );
+   c.produce_block();
+   c.set_code( tester1_account, contracts::crypto_keccak_test_wasm() );
+   c.produce_block();
+   c.set_code( tester1_account, contracts::crypto_assert_keccak_test_wasm() );
+   c.produce_block();
+   return;
+
+   c.set_code( tester1_account, contracts::crypto_intrinsics_test_wasm() );
+   c.set_abi( tester1_account, contracts::crypto_intrinsics_test_abi().data() );
+   c.produce_block();
+
+   BOOST_CHECK_EXCEPTION(  c.push_action( tester1_account, N(sha3), tester1_account, mutable_variant_object()
+                                                                           ("s", "test string")
+                                                                           ("expected", "") ),
+                                                                           crypto_api_exception,
+                                                                           fc_exception_message_is( "hash mismatch" ) );
+
+   c.push_action( tester1_account, N(sha3), tester1_account, mutable_variant_object()
+                                                               ("s", "test string")
+                                                               ("expected", "77e9f353431833c316bd41dc88670d9ad21d2e5950d6f5e2346f2e8859f4fc9b"));
+
+   BOOST_CHECK_EXCEPTION(  c.push_action( tester1_account, N(keccak), tester1_account, mutable_variant_object()
+                                                                           ("s", "test string")
+                                                                           ("expected", "") ),
+                                                                           crypto_api_exception,
+                                                                           fc_exception_message_is( "hash mismatch" ) );
+
+   c.push_action( tester1_account, N(keccak), tester1_account, mutable_variant_object()
+                                                               ("s", "test string")
+                                                               ("expected", "c7fd1d987ada439fc085cfa3c49416cf2b504ac50151e3c2335d60595cb90745"));
+
+   fc::ecc::public_key k1_pt_1(eosio::chain::public_key_type("EOS8QH7zaArDtRRE7VcMsdKWhVWrPLFt8V74pKhT3szbKorvVeV3q"s)._storage.get<fc::ecc::public_key_shim>()._data);
+   fc::ecc::public_key k1_pt_2(eosio::chain::public_key_type("EOS822y6oxYAm8CNgnxxM5Jh9WfiSwQ16zZMrHSE8ktL91wysvRcn"s)._storage.get<fc::ecc::public_key_shim>()._data);
+
+   fc::crypto::r1::public_key r1_pt_1(eosio::chain::public_key_type("PUB_R1_7QZyaFNRYbsYpZhRf21D4qXUfnsrY8oZwhBNvTUazVrA2416TF"s)._storage.get<fc::crypto::r1::public_key_shim>()._data);
+   fc::crypto::r1::public_key r1_pt_2(eosio::chain::public_key_type("PUB_R1_5R6N3iEHT45CJWwHqyo2cNASJdF1jkFcwSmkUqJxUciStJseGu"s)._storage.get<fc::crypto::r1::public_key_shim>()._data);
+
+   std::vector<char> k1_pt_1_c, k1_pt_2_c, k1_pt_1_u, k1_pt_2_u, r1_pt_1_c, r1_pt_2_c, r1_pt_1_u, r1_pt_2_u;
+   std::vector<char> k1_add_exp, k1_mul_exp, r1_add_exp, r1_mul_exp;
+
+   k1_pt_1_c.resize(32);
+   k1_pt_2_c.resize(32);
+   k1_pt_1_u.resize(64);
+   k1_pt_2_u.resize(64);
+
+   r1_pt_1_c.resize(32);
+   r1_pt_2_c.resize(32);
+   r1_pt_1_u.resize(64);
+   r1_pt_2_u.resize(64);
+
+   k1_add_exp.resize(64);
+   k1_mul_exp.resize(64);
+   r1_add_exp.resize(64);
+   r1_mul_exp.resize(64);
+
+   memcpy((char*)k1_pt_1_c.data(), (const char*)(k1_pt_1.serialize().begin()+1), 32);
+   memcpy((char*)k1_pt_2_c.data(), (const char*)(k1_pt_2.serialize().begin()+1), 32);
+   memcpy((char*)k1_pt_1_u.data(), (const char*)(k1_pt_1.serialize_ecc_point().begin()+1), 64);
+   memcpy((char*)k1_pt_2_u.data(), (const char*)(k1_pt_2.serialize_ecc_point().begin()+1), 64);
+
+   memcpy((char*)r1_pt_1_c.data(), (const char*)(r1_pt_1.serialize().begin()+1), 32);
+   memcpy((char*)r1_pt_2_c.data(), (const char*)(r1_pt_2.serialize().begin()+1), 32);
+   memcpy((char*)r1_pt_1_u.data(), (const char*)(r1_pt_1.serialize_ecc_point().begin()+1), 64);
+   memcpy((char*)r1_pt_2_u.data(), (const char*)(r1_pt_2.serialize_ecc_point().begin()+1), 64);
+
+   fc::ecc::r1_ec_point tmp(fc::bigint({'\xF','\x8','\x4','\xE','\x8','\xA','\x3','\x6','\x2','\xD','\x2','\xA','\x2','\xC','\x8','\xD','\x5','\x1','\x0','\x6','\x4','\x3','\x0','\xA','\xE','\x4','\xE','\xA','\x6','\xF','\x3','\x0','\xD','\x8','\xF','\xD','\xF',
+                                     '\x4','\x4','\x4','\x7','\x6','\x0','\x3','\x1','\xE','\xD','\x4','\x3','\x2','\x7','\xF','\x9','\x8','\xD','\xF','\xE','\x0','\xB','\x7','\x5','\xC','\x0','\x0'}),
+                         fc::bigint({'\x2','\x3','\xD','\x4','\x0','\x5','\x0','\x4','\x3','\x7','\xD','\xA','\x1','\xC','\x9','\x8','\x6','\x9','\x4','\xB','\x0','\x6','\xC','\xA','\xD','\x3','\x2','\xE','\x3','\x4','\xC','\x7','\x2','\x8','\xC','\xE','\x6',
+                                     '\xF','\x7','\x3','\xD','\x1','\x7','\xE','\xA','\xB','\x5','\xF','\x7','\x6','\xF','\x4','\xB','\x6','\x9','\xF','\x5','\xC','\x4','\x7','\x7','\x8','\x0','\x1'}));
+   tmp.to_bin((uint8_t*)r1_add_exp.data(), 64);
+
+   // should work fine with compressed points
+   c.push_action( tester1_account, N(ecaddr1), tester1_account, mutable_variant_object()
+                                                               ("type", 0)
+                                                               ("p", k1_pt_1_c)
+                                                               ("q", k1_pt_2_c)
+                                                               ("e", r1_add_exp));
+
+   BOOST_CHECK_EXCEPTION( c.push_action( tester1_account, N(ecaddr1), tester1_account, mutable_variant_object()
+                                                               ("type", 1)
+                                                               ("p", k1_pt_1_u)
+                                                               ("q", k1_pt_2_u)
+                                                               ("e", k1_add_exp)),
+                                                               eosio_assert_message_exception,
+                                                               eosio_assert_message_is("ec_add failure"));
+
+   tmp = fc::ecc::r1_ec_point(fc::bigint({'\xE','\x8','\x8','\x8','\xA','\xF','\x2','\x0','\xA','\x2','\x0','\xE','\x0','\xC','\x4','\x9','\x5','\xC','\x0','\xB','\x3','\x6','\xB','\x1','\x2','\xF','\xB','\x7','\xA','\xC','\xA',
+                                       '\x2','\xB','\xB','\x3','\x6','\x6','\xB','\x9','\xB','\xF','\x6','\x9','\xF','\x8','\x1','\x8','\xB','\xA','\x7','\x0','\x5','\xB','\x2','\x6','\xA','\x4','\x8','\x9','\xF','\x0','\xA','\xC','\x5'}),
+                         fc::bigint({'\xC','\x8','\x7','\xA','\x9','\x5','\x8','\x5','\x1','\xE','\x8','\xB','\x9','\x0','\xD','\x7','\x7','\x4','\x0','\x1','\x0','\x1','\xD','\x0','\xF','\x0','\x0','\xB','\x9','\xE','\x9',
+                                     '\x0','\x7','\x1','\xD','\xA','\x8','\xB','\xA','\xE','\xA','\xF','\xB','\xB','\x0','\xF','\xE','\x4','\x5','\xB','\xF','\x6','\xF','\xC','\x1','\xC','\xD','\x4','\x7','\x8','\x3','\xE','\x4','\x7'}));
+   tmp.to_bin((uint8_t*)r1_add_exp.data(), 64);
+
+   std::cout << "What\n";
+   c.push_action( tester1_account, N(ecaddr1), tester1_account, mutable_variant_object()
+                                                               ("type", 0)
+                                                               ("p", r1_pt_1_c)
+                                                               ("q", r1_pt_2_c)
+                                                               ("e", r1_add_exp));
+   c.push_action( tester1_account, N(ecaddr1), tester1_account, mutable_variant_object()
+                                                               ("type", 1)
+                                                               ("p", r1_pt_1_u)
+                                                               ("q", r1_pt_2_u)
+                                                               ("e", r1_add_exp));
+} FC_LOG_AND_RETHROW() }
+
 BOOST_AUTO_TEST_CASE( ram_restrictions_test ) { try {
    tester c( setup_policy::preactivate_feature_and_new_bios );
 
