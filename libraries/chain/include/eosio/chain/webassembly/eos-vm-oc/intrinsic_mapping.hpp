@@ -253,7 +253,8 @@ constexpr auto intrinsic_table = boost::hana::make_tuple(
    "env.assert_keccak"_s,
    "env.sha3"_s,
    "env.keccak"_s,
-   "env.ec_add"_s
+   "env.ec_add"_s,
+   "env.ec_mul"_s
 );
 
 }}}

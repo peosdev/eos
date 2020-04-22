@@ -909,6 +909,12 @@ class crypto_api : public context_aware_api {
          return 0;
       }
 
+      int64_t ec_mul(const fc::ecc::r1_ec_point& p, const fc::bigint& s, fc::ecc::r1_ec_point& r) {
+         uint64_t curve = p.get_curve();
+         r = p.mult(s);
+         return 0;
+      }
+
       /*
       int64_t ec_add(uint64_t tag, array_ptr<char> input, uint32_t input_len, array_ptr<char> output, uint32_t output_len) {
          uint32_t input_len_lb = 0;
@@ -2051,6 +2057,7 @@ REGISTER_INTRINSICS(crypto_api,
    (assert_recover_key,     void(int, int, int, int, int)                )
    (recover_key,            int(int, int, int, int, int)                 )
    (ec_add,                 int64_t(int, int, int)                       ) //int64_t, int, int, int, int) )
+   (ec_mul,                 int64_t(int, int, int)                       ) //int64_t, int, int, int, int) )
    (assert_sha256,          void(int, int, int)                          )
    (assert_sha1,            void(int, int, int)                          )
    (assert_sha512,          void(int, int, int)                          )
