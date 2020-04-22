@@ -1085,6 +1085,10 @@ BOOST_AUTO_TEST_CASE( crypto_intrinsics_test ) { try {
                            wasm_exception,
                            fc_exception_message_is( "env.ec_add unresolveable" ) );
 
+   BOOST_CHECK_EXCEPTION(  c.set_code( tester1_account, contracts::crypto_ec_mul_test_wasm() ),
+                           wasm_exception,
+                           fc_exception_message_is( "env.ec_mul unresolveable" ) );
+
    const auto& pfm = c.control->get_protocol_feature_manager();
    const auto& d = pfm.get_builtin_digest( builtin_protocol_feature_t::crypto_intrinsics_extension );
    BOOST_REQUIRE( d );
