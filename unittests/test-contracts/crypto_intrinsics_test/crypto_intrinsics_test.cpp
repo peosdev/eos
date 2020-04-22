@@ -41,7 +41,7 @@ public:
           return c - 'A' + 10;
 		eosio::check(false, "fail");
 		return -1;
-   }
+    }
 
 	void from_hex( const std::string& hex_str, char* out_data, size_t out_data_len ) {
 		for (int i=0, j=0; i < hex_str.size(); i += 2, j++)
