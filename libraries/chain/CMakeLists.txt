@@ -2,6 +2,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/eosio/chain/core_symbol.hpp.i
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/genesis_state_root_key.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/genesis_state_root_key.cpp)
 
 file(GLOB HEADERS "include/eosio/chain/*.hpp"
+                  "include/eosio/chain/ringct/*.hpp"
+                  "include/eosio/chain/ringct/*.h"
                   "include/eosio/chain/webassembly/*.hpp"
                   "${CMAKE_CURRENT_BINARY_DIR}/include/eosio/chain/core_symbol.hpp" )
 
@@ -101,6 +103,8 @@ add_library( eosio_chain
              whitelisted_intrinsics.cpp
              thread_utils.cpp
              platform_timer_accuracy.cpp
+             ringct/rctCryptoOps.c
+             ringct/bulletproofs.cpp
              ${PLATFORM_TIMER_IMPL}
              ${HEADERS}
              )
